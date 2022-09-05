@@ -1,4 +1,5 @@
 import ApiCaller from '../utils/apicaller';
+import {ProblemDetail, ProblemsetQuestionList} from '../utils/interfaces';
 
 class ProblemManager {
   private apiCaller: ApiCaller;
@@ -17,56 +18,54 @@ class ProblemManager {
     return ProblemManager.instance;
   }
 
-  async getAllProblems(
+  async getProblems(
     slug: string,
     filter: object,
     limit: number,
     skip: number
-  ) {
-    return await this.apiCaller.GraphQLRequest({
-      query: `
-        query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
-      problemsetQuestionList: questionList(
-        categorySlug: $categorySlug
-        limit: $limit
-        skip: $skip
-        filters: $filters
-      ) {
-        total: totalNum
-        questions: data {
-          acRate
-          difficulty
-          freqBar
-          frontendQuestionId: questionFrontendId
-          isFavor
-          paidOnly: isPaidOnly
-          status
-          title
-          titleSlug
-          topicTags {
-            name
-            id
-            slug
+  ): Promise<ProblemsetQuestionList> {
+    return await this.apiCaller
+      .GraphQLRequest({
+        query: `
+      query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+        problemsetQuestionList: questionList(
+          categorySlug: $categorySlug
+          limit: $limit
+          skip: $skip
+          filters: $filters
+        ) {
+          total: totalNum
+          questions: data {
+            difficulty
+            paidOnly: isPaidOnly
+            frontendQuestionId: questionFrontendId
+            title
+            titleSlug
+            topicTags {
+              name
+              slug
+            }
+            judgeType
           }
-          judgeType
-          hasSolution
-          hasVideoSolution
         }
       }
-    }
         `,
-      variables: {
-        categorySlug: slug,
-        filters: filter,
-        limit: limit,
-        skip: skip,
-      },
-    });
+        variables: {
+          categorySlug: slug,
+          filters: filter,
+          limit: limit,
+          skip: skip,
+        },
+      })
+      .then(res => {
+        return res.problemsetQuestionList;
+      });
   }
 
-  async getProblemDetail(titleSlug: string) {
-    return await this.apiCaller.GraphQLRequest({
-      query: `
+  async getProblemDetail(titleSlug: string): Promise<ProblemDetail> {
+    return await this.apiCaller
+      .GraphQLRequest({
+        query: `
       query questionData($titleSlug: String!) {
         question(titleSlug: $titleSlug) {
           questionId
@@ -85,23 +84,16 @@ class ProblemManager {
             langSlug
             code
           }
-          stats
-          solution {
-            id
-            canSeeDetail
-            paidOnly
-            hasVideoSolution
-            paidOnlyVideo
-          }
-          status
-          sampleTestCase
         }
       }
       `,
-      variables: {
-        titleSlug: titleSlug,
-      },
-    });
+        variables: {
+          titleSlug: titleSlug,
+        },
+      })
+      .then(res => {
+        return res.question;
+      });
   }
 
   async testSolution(
@@ -115,7 +107,7 @@ class ProblemManager {
     return await this.apiCaller
       .HttpRequest({
         method: 'POST',
-        url: `https://leetcode.com/problems/${slug}/interpret_solution/`,
+        url: `problems/${slug}/interpret_solution/`,
         body: {
           data_input: data_input,
           judgeType: judgeType,
@@ -127,7 +119,7 @@ class ProblemManager {
       .then(async res => {
         return await this.apiCaller.HttpRequest({
           method: 'GET',
-          url: `https://leetcode.com/submissions/detail/${res.data.interpret_id}/check`,
+          url: `submissions/detail/${res.data.interpret_id}/check`,
         });
       });
   }
@@ -141,7 +133,7 @@ class ProblemManager {
     return await this.apiCaller
       .HttpRequest({
         method: 'POST',
-        url: `https://leetcode.com/problems/${slug}/submit/`,
+        url: `problems/${slug}/submit/`,
         body: {
           lang: lang,
           question_id: question_id,
@@ -151,7 +143,7 @@ class ProblemManager {
       .then(async res => {
         return await this.apiCaller.HttpRequest({
           method: 'GET',
-          url: `https://leetcode.com/submissions/detail/${res.data.submission_id}/check`,
+          url: `submissions/detail/${res.data.submission_id}/check`,
         });
       });
   }

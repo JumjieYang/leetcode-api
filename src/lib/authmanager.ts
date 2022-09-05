@@ -1,3 +1,4 @@
+import ApiCaller from '../utils/apicaller';
 import {Credential} from '../utils/interfaces';
 
 class AuthManager {
@@ -14,9 +15,28 @@ class AuthManager {
   }
 
   async login(username: string, password: string) {
+    const fs = require('fs');
+    const path = './config.json';
+
+    if (fs.existsSync(path)) {
+      const expireDate = 14 * 24 * 60 * 60;
+
+      const isExpired =
+        (new Date().getTime() - fs.statSync(path).mtime) / 1000 >= expireDate;
+
+      if (!isExpired) {
+        const credential: Credential = JSON.parse(
+          fs.readFileSync(path, {encoding: 'utf8', flag: 'r'})
+        );
+        fs.writeFileSync('config.json', JSON.stringify(credential));
+
+        ApiCaller.getInstance().setCredential(credential);
+        return;
+      }
+    }
     const {chromium} = require('playwright');
 
-    const browser = await chromium.launch({headless: false});
+    const browser = await chromium.launch();
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.goto('https://leetcode.com/accounts/login/');
@@ -44,7 +64,8 @@ class AuthManager {
     await context.close();
     await browser.close();
 
-    return credential;
+    fs.writeFileSync('config.json', JSON.stringify(credential));
+    ApiCaller.getInstance().setCredential(credential);
   }
 }
 

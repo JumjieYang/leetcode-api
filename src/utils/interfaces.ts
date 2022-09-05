@@ -20,39 +20,41 @@ interface Credential {
 interface Urls {
   base: string;
   graphql: string;
-  allProblems: string;
-  problem: string;
-  submit: string;
+}
+
+interface ProblemsetQuestionList {
+  total: number;
+  questions: Problem[];
 }
 
 interface Problem {
-  slug: string;
-  id: number;
+  difficulty: string;
+  paidOnly: boolean;
+  frontendQuestionId: string;
   title: string;
-  difficulty: ProblemDifficulty;
-  starred: boolean;
-  locked: boolean;
-  likes: number;
-  dislikes: number;
-  status: ProblemStatus;
-  tag: Array<string>;
-  totalAccepted: number;
-  totalSubmission: number;
-  sampleTestCase: string;
+  slug: string;
+  topicTags: TopicTag[];
+  judgeType: string;
+}
+
+interface ProblemDetail {
+  questionId: string;
+  title: string;
+  titleSlug: string;
   content: string;
-  codeSnippets: Array<any>;
+  exampleTestCases: string;
+  codeSnippets: CodeSnippet[];
 }
 
-enum ProblemStatus {
-  'Accept',
-  'Not Accept',
-  'Not Start',
+interface CodeSnippet {
+  lang: string;
+  langSlug: string;
+  code: string;
 }
 
-enum ProblemDifficulty {
-  'Easy',
-  'Medium',
-  'Hard',
+interface TopicTag {
+  name: string;
+  slug: string;
 }
 
 enum SubmissionStatus {
@@ -67,8 +69,10 @@ export {
   GraphQLRequestOptions,
   Credential,
   Urls,
+  ProblemsetQuestionList,
   Problem,
-  ProblemStatus,
-  ProblemDifficulty,
+  ProblemDetail,
+  TopicTag,
+  CodeSnippet,
   SubmissionStatus,
 };

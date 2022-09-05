@@ -16,20 +16,13 @@ class ApiCaller {
   private constructor() {
     this.credential = {session: '', csrftoken: ''};
     this.urls = {
-      base: '',
-      graphql: '',
-      allProblems: '',
-      problem: '',
-      submit: '',
+      base: 'https://leetcode.com/',
+      graphql: 'https://leetcode.com/graphql/',
     };
   }
 
   setCredential(credential: Credential) {
     this.credential = credential;
-  }
-
-  setUrls(urls: Urls) {
-    this.urls = urls;
   }
 
   static getInstance(): ApiCaller {
@@ -42,7 +35,7 @@ class ApiCaller {
 
   async HttpRequest(options: HttpRequestOptions) {
     return axios.request({
-      url: options.url,
+      url: this.urls.base + options.url,
       method: options.method,
       headers: {
         LEETCODE_SESSION: this.credential.session,
@@ -60,7 +53,8 @@ class ApiCaller {
       headers: {
         Origin: options.origin || this.urls.base,
         Referer: options.referer || this.urls.base,
-        Cookie: `LEETCODE_SESSION=${this.credential.session};csrftoken=${this.credential.csrftoken};`,
+        LEETCODE_SESSION: this.credential.session,
+        csrftoken: this.credential.csrftoken,
         'X-Requested-With': 'XMLHttpRequest',
         'X-CSRFToken': this.credential.csrftoken,
       },
