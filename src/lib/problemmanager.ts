@@ -48,6 +48,7 @@ class ProblemManager {
             id
             slug
           }
+          judgeType
           hasSolution
           hasVideoSolution
         }
@@ -61,6 +62,98 @@ class ProblemManager {
         skip: skip,
       },
     });
+  }
+
+  async getProblemDetail(titleSlug: string) {
+    return await this.apiCaller.GraphQLRequest({
+      query: `
+      query questionData($titleSlug: String!) {
+        question(titleSlug: $titleSlug) {
+          questionId
+          title
+          titleSlug
+          content
+          isPaidOnly
+          difficulty
+          exampleTestcases
+          topicTags {
+            name
+            slug
+          }
+          codeSnippets {
+            lang
+            langSlug
+            code
+          }
+          stats
+          solution {
+            id
+            canSeeDetail
+            paidOnly
+            hasVideoSolution
+            paidOnlyVideo
+          }
+          status
+          sampleTestCase
+        }
+      }
+      `,
+      variables: {
+        titleSlug: titleSlug,
+      },
+    });
+  }
+
+  async testSolution(
+    slug: string,
+    data_input: string,
+    judgeType: string,
+    lang: string,
+    question_id: string,
+    typed_code: string
+  ) {
+    return await this.apiCaller
+      .HttpRequest({
+        method: 'POST',
+        url: `https://leetcode.com/problems/${slug}/interpret_solution/`,
+        body: {
+          data_input: data_input,
+          judgeType: judgeType,
+          lang: lang,
+          question_id: question_id,
+          typed_code: typed_code,
+        },
+      })
+      .then(async res => {
+        return await this.apiCaller.HttpRequest({
+          method: 'GET',
+          url: `https://leetcode.com/submissions/detail/${res.data.interpret_id}/check`,
+        });
+      });
+  }
+
+  async submitSolution(
+    slug: string,
+    lang: string,
+    question_id: string,
+    typed_code: string
+  ) {
+    return await this.apiCaller
+      .HttpRequest({
+        method: 'POST',
+        url: `https://leetcode.com/problems/${slug}/submit/`,
+        body: {
+          lang: lang,
+          question_id: question_id,
+          typed_code: typed_code,
+        },
+      })
+      .then(async res => {
+        return await this.apiCaller.HttpRequest({
+          method: 'GET',
+          url: `https://leetcode.com/submissions/detail/${res.data.submission_id}/check`,
+        });
+      });
   }
 }
 
