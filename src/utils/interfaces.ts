@@ -46,6 +46,56 @@ interface ProblemDetail {
   codeSnippets: CodeSnippet[];
 }
 
+interface TestResult {
+  status_code: number;
+  lang: string;
+  run_success: boolean;
+  runtime_error?: string;
+  full_runtime_error?: string;
+  status_runtime: string;
+  memory: number;
+  code_answer: string[];
+  code_output: string[];
+  std_output: string[];
+  elapsed_time: number;
+  task_finish_time: number;
+  total_correct?: number;
+  total_testcases?: number;
+  runtime_percentile?: number;
+  status_memory: string;
+  memory_percentile?: number;
+  pretty_lang: string;
+  submission_id: string;
+  status_msg: string;
+  state: string;
+}
+
+interface SubmissionResult {
+  status_code: number;
+  lang: string;
+  run_success: boolean;
+  runtime_error?: string;
+  full_runtime_error?: string;
+  status_runtime: string;
+  memory: number;
+  question_id: string;
+  elapsed_time: number;
+  compare_result: string;
+  code_output: string;
+  std_output: string;
+  last_testcase?: string;
+  expected_output: string;
+  task_finish_time: number;
+  total_correct?: number;
+  total_testcases?: number;
+  runtime_percentile?: number;
+  status_memory: string;
+  memory_percentile?: number;
+  pretty_lang: string;
+  submission_id: string;
+  status_msg: string;
+  state: string;
+}
 interface CodeSnippet {
   lang: string;
   langSlug: string;
@@ -55,13 +105,6 @@ interface CodeSnippet {
 interface TopicTag {
   name: string;
   slug: string;
-}
-
-enum SubmissionStatus {
-  'Accepted',
-  'Compile Error',
-  'Wrong Answer',
-  'Time Limit Exceeded',
 }
 
 export {
@@ -74,5 +117,6 @@ export {
   ProblemDetail,
   TopicTag,
   CodeSnippet,
-  SubmissionStatus,
+  TestResult,
+  SubmissionResult,
 };

@@ -38,13 +38,14 @@ class ApiCaller {
       url: this.urls.base + options.url,
       method: options.method,
       headers: {
-        LEETCODE_SESSION: this.credential.session,
-        csrftoken: this.credential.csrftoken,
+        Cookie: `LEETCODE_SESSION=${
+          ApiCaller.getInstance().credential.session
+        };csrftoken=${ApiCaller.getInstance().credential.csrftoken}`,
         'X-Requested-With': 'XMLHttpRequest',
         'X-CSRFToken': this.credential.csrftoken,
         Referer: options.referer || this.urls.base,
       },
-      data: options.body || '',
+      data: JSON.stringify(options.body) || '',
     });
   }
 

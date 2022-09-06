@@ -1,5 +1,10 @@
 import ApiCaller from '../utils/apicaller';
-import {ProblemDetail, ProblemsetQuestionList} from '../utils/interfaces';
+import {
+  ProblemDetail,
+  ProblemsetQuestionList,
+  SubmissionResult,
+  TestResult,
+} from '../utils/interfaces';
 
 class ProblemManager {
   private apiCaller: ApiCaller;
@@ -103,7 +108,7 @@ class ProblemManager {
     lang: string,
     question_id: string,
     typed_code: string
-  ) {
+  ): Promise<TestResult> {
     return await this.apiCaller
       .HttpRequest({
         method: 'POST',
@@ -117,10 +122,14 @@ class ProblemManager {
         },
       })
       .then(async res => {
-        return await this.apiCaller.HttpRequest({
-          method: 'GET',
-          url: `submissions/detail/${res.data.interpret_id}/check`,
-        });
+        return await this.apiCaller
+          .HttpRequest({
+            method: 'GET',
+            url: `submissions/detail/${res.data.interpret_id}/check`,
+          })
+          .then(res => {
+            return res.data;
+          });
       });
   }
 
@@ -129,7 +138,7 @@ class ProblemManager {
     lang: string,
     question_id: string,
     typed_code: string
-  ) {
+  ): Promise<SubmissionResult> {
     return await this.apiCaller
       .HttpRequest({
         method: 'POST',
@@ -141,10 +150,14 @@ class ProblemManager {
         },
       })
       .then(async res => {
-        return await this.apiCaller.HttpRequest({
-          method: 'GET',
-          url: `submissions/detail/${res.data.submission_id}/check`,
-        });
+        return await this.apiCaller
+          .HttpRequest({
+            method: 'GET',
+            url: `submissions/detail/${res.data.submission_id}/check`,
+          })
+          .then(res => {
+            return res.data;
+          });
       });
   }
 }
